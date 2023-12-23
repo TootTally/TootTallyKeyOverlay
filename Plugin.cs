@@ -66,12 +66,12 @@ namespace TootTallyKeyOverlay
             private static CustomButton _keyPrefab;
             private static GameObject _keyOverlayUI;
 
-            [HarmonyPatch(typeof(LevelSelectController), nameof(LevelSelectController.Start))]
+            [HarmonyPatch(typeof(GameObjectFactory), nameof(GameObjectFactory.OnHomeControllerInitialize))]
             [HarmonyPostfix]
-            public static void SetKeyOverlayPrefab(LevelSelectController __instance)
+            public static void SetKeyOverlayPrefab()
             {
                 if (_keyPrefab != null) return;
-                var tempObj = GameObjectFactory.CreateCustomButton(__instance.bgshape.transform, Vector2.zero, new Vector2(50, 50), "test", "tempObj"); //idk where to put the tempObj just put it somewhere random lmfao
+                var tempObj = GameObjectFactory.CreateCustomButton(null, Vector2.zero, new Vector2(50, 50), "test", "tempObj");
                 _keyPrefab = GameObject.Instantiate(tempObj);
                 _keyPrefab.gameObject.name = "KeyOverlayPrefab";
                 _keyPrefab.GetComponent<RectTransform>().sizeDelta = Vector2.one * 30;
