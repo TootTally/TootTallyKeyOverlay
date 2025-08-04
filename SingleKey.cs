@@ -1,29 +1,55 @@
-﻿using TootTallyCore.Graphics;
+﻿using System;
+using TMPro;
+using TootTallyCore.Graphics;
+using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace TootTallyKeyOverlay
 {
     public class SingleKey
     {
-        private CustomButton _gameObject;
-        public bool isPressed;
-        private int _pressCount; 
+        private GameObject _fullGO, _innerGO;
+        private Image _outerImage, _innerImage;
+        private TMP_Text _text, _pressCountText;
+        private int _pressCount;
 
-        public SingleKey(CustomButton gameObject)
+        public bool isPressed;
+
+        public SingleKey(GameObject gameObject, KeyCode key)
         {
-            _gameObject = gameObject;
+            _fullGO = gameObject;
+            _outerImage = _fullGO.GetComponent<Image>();
+            _outerImage.color = Plugin.Instance.KeyOuterColor.Value;
+            _innerGO = _fullGO.transform.GetChild(0).gameObject;
+            _innerImage = _innerGO.GetComponent<Image>();
+            _innerImage.color = Plugin.Instance.KeyInnerColor.Value;
+            _text = _innerGO.transform.GetChild(0).GetComponent<TMP_Text>();
+            _text.text = key.ToString();
+            _pressCountText = _innerGO.transform.GetChild(1).GetComponent<TMP_Text>();
+        }
+
+        public void Update()
+        {
+
         }
 
         public void OnKeyPress()
         {
-            _gameObject.button.OnPointerEnter(new PointerEventData(EventSystem.current));
+            _innerImage.color = Plugin.Instance.KeyPressedInnerColor.Value;
+            _outerImage.color = Plugin.Instance.KeyPressedOuterColor.Value;
+
             _pressCount++;
-            _gameObject.textHolder.text = _pressCount.ToString();
+            _pressCountText.color = Plugin.Instance.KeyPressedTextColor.Value;
+            _pressCountText.text = _pressCount.ToString();
             isPressed = true;
         }
         public void OnKeyRelease()
         {
-            _gameObject.button.OnPointerExit(new PointerEventData(EventSystem.current));
+            _innerImage.color = Plugin.Instance.KeyInnerColor.Value;
+            _outerImage.color = Plugin.Instance.KeyOuterColor.Value;
+
+            _pressCountText.color = Plugin.Instance.KeyTextColor.Value;
             isPressed = false;
         }
     }

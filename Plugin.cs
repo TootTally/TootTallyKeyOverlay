@@ -18,6 +18,7 @@ namespace TootTallyKeyOverlay
     {
         public static Plugin Instance;
 
+        private const string CONFIG_NAME = "TootTallyKeyOverlay.cfg";
         private Harmony _harmony;
         public ConfigEntry<bool> ModuleConfigEnabled { get; set; }
         public bool IsConfigInitialized { get; set; }
@@ -49,7 +50,50 @@ namespace TootTallyKeyOverlay
 
         public void LoadModule()
         {
-            _harmony.PatchAll(typeof(KeyOverlayPatches));
+            string configPath = Path.Combine(Paths.BepInExRootPath, "config/");
+            ConfigFile config = new ConfigFile(configPath + CONFIG_NAME, true) { SaveOnConfigSet = true };
+            KeyElementSize = config.Bind("General", nameof(KeyElementSize), 18f, "Size in pixels of a single key element.");
+            KeyOutlineThiccness = config.Bind("General", nameof(KeyOutlineThiccness), 2f, "Size in pixels of a single key element.");
+            BeamSpeed = config.Bind("General", nameof(BeamSpeed), 2f, "Speed of the beam when pressing a key.");
+            KeyOuterColor = config.Bind("General", nameof(KeyOuterColor), Color.white, "Color of the outline of a single key element.");
+            KeyPressedOuterColor = config.Bind("General", nameof(KeyPressedOuterColor), Color.gray, "Color of the outline of a single key element when key is pressed.");
+            KeyInnerColor = config.Bind("General", nameof(KeyInnerColor), Color.black, "Color of the inside of a single key element.");
+            KeyPressedInnerColor = config.Bind("General", nameof(KeyPressedInnerColor), Color.gray, "Color of the inside of a single key element when key is pressed.");
+            KeyTextColor = config.Bind("General", nameof(KeyTextColor), Color.white, "Color of the text of a single key element.");
+            KeyPressedTextColor = config.Bind("General", nameof(KeyPressedTextColor), Color.gray, "Color of the text of a single key element when key is pressed.");
+
+            settingPage = TootTallySettingsManager.AddNewPage("Key Overlay", "Key Overlay", 40f, new Color(0, 0, 0, 0));
+
+            settingPage.AddLabel("Key Element Size");
+            settingPage.AddSlider("Key Element Size", 4f, 32f, KeyElementSize, true);
+
+            settingPage.AddLabel("Key Element Outline Thiccness");
+            settingPage.AddSlider("Key Element Outline Thiccness", 0f, 8f, KeyOutlineThiccness, true);
+
+            settingPage.AddLabel("Beam Speed");
+            settingPage.AddSlider("Beam Speed", 1f, 12f, BeamSpeed, true);
+
+            settingPage.AddLabel("KeyOuterColor");
+            settingPage.AddColorSliders("KeyOuterColor", "KeyOuterColor", KeyOuterColor);
+
+            settingPage.AddLabel("KeyPressedOuterColor");
+            settingPage.AddColorSliders("KeyPressedOuterColor", "KeyPressedOuterColor", KeyPressedOuterColor);
+
+            settingPage.AddLabel("KeyInnerColor");
+            settingPage.AddColorSliders("KeyInnerColor", "KeyInnerColor", KeyInnerColor);
+
+            settingPage.AddLabel("KeyPressedInnerColor");
+            settingPage.AddColorSliders("KeyPressedInnerColor", "KeyPressedInnerColor", KeyPressedInnerColor);
+
+            settingPage.AddLabel("KeyTextColor");
+            settingPage.AddColorSliders("KeyTextColor", "KeyTextColor", KeyTextColor);
+
+            settingPage.AddLabel("KeyPressedTextColor");
+            settingPage.AddColorSliders("KeyPressedTextColor", "KeyPressedTextColor", KeyPressedTextColor);
+
+            TootTallySettings.Plugin.TryAddThunderstoreIconToPageButton(Instance.Info.Location, Name, settingPage);
+
+            _harmony.PatchAll(typeof(KeyOverlayManager));
             LogInfo($"Module loaded!");
         }
 
@@ -60,84 +104,15 @@ namespace TootTallyKeyOverlay
             LogInfo($"Module unloaded!");
         }
 
-        public static class KeyOverlayPatches
-        {
-            private static Dictionary<KeyCode, SingleKey> _keyPressedDict;
-            private static CustomButton _keyPrefab;
-            private static GameObject _keyOverlayUI;
+        public ConfigEntry<Color> KeyOuterColor { get; set; }
+        public ConfigEntry<Color> KeyPressedOuterColor { get; set; }
+        public ConfigEntry<Color> KeyInnerColor { get; set; }
+        public ConfigEntry<Color> KeyPressedInnerColor { get; set; }
+        public ConfigEntry<Color> KeyTextColor { get; set; }
+        public ConfigEntry<Color> KeyPressedTextColor { get; set; }
+        public ConfigEntry<float> KeyElementSize { get; set; }
+        public ConfigEntry<float> KeyOutlineThiccness { get; set; }
+        public ConfigEntry<float> BeamSpeed { get; set; }
 
-            [HarmonyPatch(typeof(GameObjectFactory), nameof(GameObjectFactory.OnHomeControllerInitialize))]
-            [HarmonyPostfix]
-            public static void SetKeyOverlayPrefab()
-            {
-                if (_keyPrefab != null) return;
-                var tempObj = GameObjectFactory.CreateCustomButton(null, Vector2.zero, new Vector2(50, 50), "test", "tempObj");
-                _keyPrefab = GameObject.Instantiate(tempObj);
-                _keyPrefab.gameObject.name = "KeyOverlayPrefab";
-                _keyPrefab.GetComponent<RectTransform>().sizeDelta = Vector2.one * 30;
-                _keyPrefab.textHolder.fontSize = 10;
-                var keyText = GameObject.Instantiate(_keyPrefab.transform.Find("Text"), _keyPrefab.transform);
-                keyText.name = "KeyText";
-                keyText.GetComponent<Text>().color = new Color(_keyPrefab.textHolder.color.r, _keyPrefab.textHolder.color.g, _keyPrefab.textHolder.color.b, .45f);
-                keyText.GetComponent<Text>().fontSize = 30;
-                GameObject.DestroyImmediate(tempObj.gameObject);
-                GameObject.DontDestroyOnLoad(_keyPrefab);
-            }
-
-
-            [HarmonyPatch(typeof(GameController), nameof(GameController.Start))]
-            [HarmonyPostfix]
-            public static void OnGameControllerStartSetupOverlay(GameController __instance)
-            {
-                if (__instance.freeplay) return;
-
-                var uiCanvas = GameObject.Find("GameplayCanvas/UIHolder");
-
-                _keyOverlayUI = GameObject.Instantiate(_keyPrefab, uiCanvas.transform).gameObject;
-                GameObject.DestroyImmediate(_keyOverlayUI.transform.Find("Text"));
-                GameObject.DestroyImmediate(_keyOverlayUI.GetComponent<UnityEngine.UI.Image>());
-                var rectTransform = _keyOverlayUI.GetComponent<RectTransform>();
-                rectTransform.sizeDelta = new Vector2(30, 180);
-                rectTransform.anchoredPosition = new Vector2(17, -90);
-                var verticalLayout = _keyOverlayUI.AddComponent<VerticalLayoutGroup>();
-                verticalLayout.childAlignment = TextAnchor.MiddleCenter;
-                verticalLayout.childScaleWidth = verticalLayout.childScaleHeight = false;
-                verticalLayout.childForceExpandWidth = verticalLayout.childForceExpandHeight = false;
-                verticalLayout.childControlWidth = verticalLayout.childControlHeight = false;
-
-                _keyPressedDict = new Dictionary<KeyCode, SingleKey>();
-            }
-
-            [HarmonyPatch(typeof(GameController), nameof(GameController.Update))]
-            [HarmonyPostfix]
-            public static void OnUpdateDetectKeyPressed(GameController __instance, List<KeyCode> ___toot_keys)
-            {
-                if (__instance.freeplay || _keyPressedDict == null) return;
-                ___toot_keys.ForEach(key =>
-                {
-                    if (Input.GetKey(key))
-                    {
-                        if (!_keyPressedDict.ContainsKey(key))
-                        {
-                            //put it inside to not trigger the else statement when already at 6 keys
-                            if (_keyPressedDict.Count < 6)
-                            {
-                                var newKeyGameObject = GameObject.Instantiate(_keyPrefab, _keyOverlayUI.transform);
-                                newKeyGameObject.transform.Find("KeyText").GetComponent<Text>().text = key.ToString();
-                                newKeyGameObject.name = $"KeyOverlay{key}";
-                                _keyPressedDict.Add(key, new SingleKey(newKeyGameObject));
-                                _keyPressedDict[key].OnKeyPress();
-                                Plugin.LogInfo($"New key pressed, adding {key} to overlay.");
-                            }
-                        }
-                        else if (!_keyPressedDict[key].isPressed)
-                            _keyPressedDict[key].OnKeyPress();
-                    }
-                    else if (_keyPressedDict.ContainsKey(key) && _keyPressedDict[key].isPressed)
-                        _keyPressedDict[key].OnKeyRelease();
-                });
-            }
-
-        }
     }
 }
