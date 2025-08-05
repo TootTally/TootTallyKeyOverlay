@@ -76,6 +76,7 @@ namespace TootTallyKeyOverlay
             text.color = new Color(textColor.r, textColor.g, textColor.b, .3f);
             text.margin = Vector4.one * marginSize;
             text.enableAutoSizing = true;
+            text.fontSizeMin = 5;
 
             var textKeyPressHolder = GameObjectFactory.CreateSingleText(inner.transform, "TextKeyPress", "0");
             var textKeypress = textKeyPressHolder.GetComponent<TMP_Text>();
@@ -83,6 +84,7 @@ namespace TootTallyKeyOverlay
             textKeypress.text = "0";
             textKeypress.color = textColor;
             textKeypress.fontSize = 6;
+            textKeypress.fontSizeMin = 5;
         }
 
         public SingleKey CreateNewKey(KeyCode key) => new SingleKey(GameObject.Instantiate(_singleKeyPrefab, _uiHolder.transform), key);
