@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TMPro;
 using TootTallyCore.Graphics;
 using UnityEngine;
+using UnityEngine.TextCore;
 using UnityEngine.UI;
 
 namespace TootTallyKeyOverlay
@@ -31,8 +32,8 @@ namespace TootTallyKeyOverlay
             _rectTransform.localScale = Vector3.one;
             _rectTransform.sizeDelta = Vector2.one * 55f;
             _gridLayout = _uiHolder.GetComponent<GridLayoutGroup>();
-            _gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            _gridLayout.startAxis = GridLayoutGroup.Axis.Vertical;
+            _gridLayout.constraint = Plugin.Instance.HorizontalAlignement.Value ? GridLayoutGroup.Constraint.FixedRowCount : GridLayoutGroup.Constraint.FixedColumnCount;
+            _gridLayout.startAxis = Plugin.Instance.HorizontalAlignement.Value ? GridLayoutGroup.Axis.Horizontal : GridLayoutGroup.Axis.Vertical;
             _gridLayout.constraintCount = 1;
             _gridLayout.childAlignment = TextAnchor.LowerCenter;
             _gridLayout.spacing = Vector2.one * 2f;
@@ -62,6 +63,9 @@ namespace TootTallyKeyOverlay
             innerBeamRectTransform.sizeDelta = new Vector2(Plugin.Instance.BeamLength.Value, fullSize);
             innerBeamRectTransform.anchorMax = innerBeamRectTransform.anchorMin = Vector2.zero;
             innerBeamRectTransform.pivot = new Vector2(1, 0);
+            if (Plugin.Instance.HorizontalAlignement.Value)
+                innerBeamRectTransform.eulerAngles = new Vector3(0, 0, -90);
+
             var innerBeamImage = innerBeam.GetComponent<RawImage>();
             innerBeamImage.color = Plugin.Instance.KeyInnerColor.Value;
 

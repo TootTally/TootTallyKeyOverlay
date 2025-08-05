@@ -8,6 +8,7 @@ using TootTallyCore.Graphics;
 using TootTallyCore.Utils.TootTallyModules;
 using TootTallySettings;
 using UnityEngine;
+using UnityEngine.TextCore;
 using UnityEngine.UI;
 
 namespace TootTallyKeyOverlay
@@ -55,6 +56,8 @@ namespace TootTallyKeyOverlay
             KeyCountLimit = config.Bind("General", nameof(KeyCountLimit), 4f, "Limit of keys displayed at the same time. Limited to 10 because on average, humans have less than 10 fingers.");
             KeyElementSize = config.Bind("General", nameof(KeyElementSize), 18f, "Size in pixels of a single key element.");
             KeyOutlineThiccness = config.Bind("General", nameof(KeyOutlineThiccness), 2f, "Size in pixels of a single key element.");
+            HorizontalAlignement = config.Bind("General", nameof(HorizontalAlignement), false, "Switch to horizontal layout.");
+
             BeamSpeed = config.Bind("General", nameof(BeamSpeed), 200f, "Speed of the beam when pressing a key. Frame dependent and default at 200fps");
             BeamLength = config.Bind("General", nameof(BeamLength), 150f, "Length of the beam when pressing a key. Default 150px");
             BeamColor = config.Bind("General", nameof(BeamColor), Color.gray, "Color of the beam when pressing a key.");
@@ -66,6 +69,8 @@ namespace TootTallyKeyOverlay
             KeyPressedTextColor = config.Bind("General", nameof(KeyPressedTextColor), Color.gray, "Color of the text of a single key element when key is pressed.");
 
             settingPage = TootTallySettingsManager.AddNewPage("Key Overlay", "Key Overlay", 40f, new Color(0, 0, 0, 0));
+
+            settingPage.AddToggle("Horizontal Alignement", HorizontalAlignement);
 
             settingPage.AddSlider("Key Count Limit", 1f, 10f, KeyCountLimit, true);
 
@@ -123,6 +128,7 @@ namespace TootTallyKeyOverlay
         public ConfigEntry<float> BeamSpeed { get; set; }
         public ConfigEntry<float> BeamLength { get; set; }
         public ConfigEntry<float> KeyCountLimit { get; set; }
+        public ConfigEntry<bool> HorizontalAlignement { get; set; }
 
     }
 }
