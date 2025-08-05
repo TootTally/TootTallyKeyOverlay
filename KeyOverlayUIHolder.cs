@@ -33,7 +33,8 @@ namespace TootTallyKeyOverlay
             _gridLayout = _uiHolder.GetComponent<GridLayoutGroup>();
             _gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             _gridLayout.startAxis = GridLayoutGroup.Axis.Vertical;
-            _gridLayout.constraintCount = 2;
+            _gridLayout.constraintCount = 1;
+            _gridLayout.childAlignment = TextAnchor.LowerCenter;
             _gridLayout.spacing = Vector2.one * 2f;
             _gridLayout.childAlignment = TextAnchor.MiddleCenter;
             _gridLayout.cellSize = Vector2.one * fullSize;
@@ -45,7 +46,6 @@ namespace TootTallyKeyOverlay
             _singleKeyPrefab = new GameObject("SingleKeyPrefab", typeof(Image));
             var rectTransform = _singleKeyPrefab.GetComponent<RectTransform>();
             rectTransform.sizeDelta = Vector2.one * fullSize;
-
             var outerImage = _singleKeyPrefab.GetComponent<Image>();
             outerImage.color = Plugin.Instance.KeyOuterColor.Value;
 
@@ -53,9 +53,17 @@ namespace TootTallyKeyOverlay
             inner.transform.SetParent(_singleKeyPrefab.transform);
             var innerRectTransform = inner.GetComponent<RectTransform>();
             innerRectTransform.sizeDelta = Vector2.one * elementSize;
-
             var innerImage = inner.GetComponent<Image>();
             innerImage.color = Plugin.Instance.KeyInnerColor.Value;
+
+            var innerBeam = new GameObject("InnerImage", typeof(RawImage));
+            innerBeam.transform.SetParent(_singleKeyPrefab.transform);
+            var innerBeamRectTransform = innerBeam.GetComponent<RectTransform>();
+            innerBeamRectTransform.sizeDelta = new Vector2(Plugin.Instance.BeamLength.Value, fullSize);
+            innerBeamRectTransform.anchorMax = innerBeamRectTransform.anchorMin = Vector2.zero;
+            innerBeamRectTransform.pivot = new Vector2(1, 0);
+            var innerBeamImage = innerBeam.GetComponent<RawImage>();
+            innerBeamImage.color = Plugin.Instance.KeyInnerColor.Value;
 
             var textKeyHolder = GameObjectFactory.CreateSingleText(inner.transform, "TextKey", "X");
             var text = textKeyHolder.GetComponent<TMP_Text>();

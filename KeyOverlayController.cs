@@ -43,7 +43,7 @@ namespace TootTallyKeyOverlay
                 {
                     if (!_keyPressedDict.ContainsKey(key))
                     {
-                        if (_keyPressedDict.Count >= 8) return;
+                        if (_keyPressedDict.Count >= Plugin.Instance.KeyCountLimit.Value) return;
 
                         _keyPressedDict.Add(key, _uiHolder.CreateNewKey(key));
                         _keyPressedDict[key].OnKeyPress();

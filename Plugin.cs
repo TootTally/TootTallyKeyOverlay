@@ -52,9 +52,12 @@ namespace TootTallyKeyOverlay
         {
             string configPath = Path.Combine(Paths.BepInExRootPath, "config/");
             ConfigFile config = new ConfigFile(configPath + CONFIG_NAME, true) { SaveOnConfigSet = true };
+            KeyCountLimit = config.Bind("General", nameof(KeyCountLimit), 4f, "Limit of keys displayed at the same time. Limited to 10 because on average, humans have less than 10 fingers.");
             KeyElementSize = config.Bind("General", nameof(KeyElementSize), 18f, "Size in pixels of a single key element.");
             KeyOutlineThiccness = config.Bind("General", nameof(KeyOutlineThiccness), 2f, "Size in pixels of a single key element.");
-            BeamSpeed = config.Bind("General", nameof(BeamSpeed), 2f, "Speed of the beam when pressing a key.");
+            BeamSpeed = config.Bind("General", nameof(BeamSpeed), 200f, "Speed of the beam when pressing a key. Frame dependent and default at 200fps");
+            BeamLength = config.Bind("General", nameof(BeamLength), 150f, "Length of the beam when pressing a key. Default 150px");
+            BeamColor = config.Bind("General", nameof(BeamColor), Color.gray, "Color of the beam when pressing a key.");
             KeyOuterColor = config.Bind("General", nameof(KeyOuterColor), Color.white, "Color of the outline of a single key element.");
             KeyPressedOuterColor = config.Bind("General", nameof(KeyPressedOuterColor), Color.gray, "Color of the outline of a single key element when key is pressed.");
             KeyInnerColor = config.Bind("General", nameof(KeyInnerColor), Color.black, "Color of the inside of a single key element.");
@@ -64,14 +67,18 @@ namespace TootTallyKeyOverlay
 
             settingPage = TootTallySettingsManager.AddNewPage("Key Overlay", "Key Overlay", 40f, new Color(0, 0, 0, 0));
 
-            settingPage.AddLabel("Key Element Size");
+            settingPage.AddSlider("Key Count Limit", 1f, 10f, KeyCountLimit, true);
+
             settingPage.AddSlider("Key Element Size", 4f, 32f, KeyElementSize, true);
 
-            settingPage.AddLabel("Key Element Outline Thiccness");
-            settingPage.AddSlider("Key Element Outline Thiccness", 0f, 8f, KeyOutlineThiccness, true);
+            settingPage.AddSlider("Key Outline Size", 0f, 8f, KeyOutlineThiccness, true);
 
-            settingPage.AddLabel("Beam Speed");
-            settingPage.AddSlider("Beam Speed", 1f, 12f, BeamSpeed, true);
+            settingPage.AddSlider("Beam Speed", 60f, 600f, BeamSpeed, true);
+
+            settingPage.AddSlider("Beam Length", 30f, 600f, BeamLength, true);
+
+            settingPage.AddLabel("Beam Color");
+            settingPage.AddColorSliders("Beam Color", "Beam Color", BeamColor);
 
             settingPage.AddLabel("KeyOuterColor");
             settingPage.AddColorSliders("KeyOuterColor", "KeyOuterColor", KeyOuterColor);
@@ -104,6 +111,7 @@ namespace TootTallyKeyOverlay
             LogInfo($"Module unloaded!");
         }
 
+        public ConfigEntry<Color> BeamColor { get; set; }
         public ConfigEntry<Color> KeyOuterColor { get; set; }
         public ConfigEntry<Color> KeyPressedOuterColor { get; set; }
         public ConfigEntry<Color> KeyInnerColor { get; set; }
@@ -113,6 +121,8 @@ namespace TootTallyKeyOverlay
         public ConfigEntry<float> KeyElementSize { get; set; }
         public ConfigEntry<float> KeyOutlineThiccness { get; set; }
         public ConfigEntry<float> BeamSpeed { get; set; }
+        public ConfigEntry<float> BeamLength { get; set; }
+        public ConfigEntry<float> KeyCountLimit { get; set; }
 
     }
 }
