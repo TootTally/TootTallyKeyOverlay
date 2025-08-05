@@ -39,12 +39,13 @@ namespace TootTallyKeyOverlay
             _innerBeam = _fullGO.transform.GetChild(1).GetComponent<RawImage>();
             _innerBeamTexture = new Texture2D(_beamLength, 1, TextureFormat.RGBAFloat, false);
             _innerBeamPixelArray = new Color[_beamLength];
-            _innerBeamPressColor = new Color(Plugin.Instance.BeamColor.Value.r, Plugin.Instance.BeamColor.Value.g, Plugin.Instance.BeamColor.Value.b, .9f);
+            _innerBeamPressColor = new Color(Plugin.Instance.BeamColor.Value.r, Plugin.Instance.BeamColor.Value.g, Plugin.Instance.BeamColor.Value.b, .7f);
             _innerBeamReleaseColor = new Color(0, 0, 0, 0);
             Array.Fill(_innerBeamPixelArray, _innerBeamPressColor);
             _innerBeamTexture.SetPixels(0, 0, _beamLength, 1, _innerBeamPixelArray);
             _innerBeamTexture.Apply();
             _innerBeam.texture = _innerBeamTexture;
+            _innerBeam.color = Plugin.Instance.BeamColor.Value;
 
             _text = _innerGO.transform.GetChild(0).GetComponent<TMP_Text>();
             _text.text = key.ToString();
