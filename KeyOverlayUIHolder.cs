@@ -28,21 +28,37 @@ namespace TootTallyKeyOverlay
             _uiHolder = uiHolder;
             _rectTransform = _uiHolder.GetComponent<RectTransform>();
             _gridLayout = _uiHolder.GetComponent<GridLayoutGroup>();
-            if (!isPreview)
-            {
-                _rectTransform.anchoredPosition3D = new Vector3(Plugin.Instance.PosXOffset.Value, Plugin.Instance.PosYOffset.Value, 0);
-                _gridLayout.childAlignment = Plugin.Instance.PositionAlignment.Value switch
-                {
-                    UIAlignment.TopLeft => TextAnchor.UpperLeft,
-                    UIAlignment.TopRight => TextAnchor.UpperRight,
-                    UIAlignment.BottomLeft => TextAnchor.LowerLeft,
-                    _ => TextAnchor.LowerRight,
-                };
-            }
             _rectTransform.offsetMin = _rectTransform.offsetMax = Vector2.zero;
-            _rectTransform.anchorMin = _rectTransform.anchorMax = _rectTransform.pivot = new Vector2(1, 0);
             _rectTransform.localScale = Vector3.one;
             _rectTransform.sizeDelta = Vector2.one * 55f;
+            if (!isPreview)
+            {
+                switch (Plugin.Instance.PositionAlignment.Value)
+                {
+                    case UIAlignment.TopLeft:
+                        _gridLayout.childAlignment = TextAnchor.UpperLeft;
+                        _rectTransform.anchorMin = _rectTransform.anchorMax = _rectTransform.pivot = new Vector2(0, 1);
+                        break;
+                    case UIAlignment.TopRight:
+                        _gridLayout.childAlignment = TextAnchor.UpperRight;
+                        _rectTransform.anchorMin = _rectTransform.anchorMax = _rectTransform.pivot = Vector2.one;
+                        break;
+                    case UIAlignment.BottomLeft:
+                        _gridLayout.childAlignment = TextAnchor.LowerLeft;
+                        _rectTransform.anchorMin = _rectTransform.anchorMax = _rectTransform.pivot = Vector2.zero;
+                        break;
+                    default:
+                        _gridLayout.childAlignment = TextAnchor.LowerRight;
+                        _rectTransform.anchorMin = _rectTransform.anchorMax = _rectTransform.pivot = new Vector2(1, 0);
+                        break;
+                }
+                _rectTransform.anchoredPosition3D = new Vector3(Plugin.Instance.PosXOffset.Value, Plugin.Instance.PosYOffset.Value,0);
+            }
+            else
+            {
+                _gridLayout.childAlignment = TextAnchor.LowerRight;
+                _rectTransform.anchorMin = _rectTransform.anchorMax = _rectTransform.pivot = new Vector2(1, 0);
+            }
 
             _gridLayout.constraintCount = 1;
             _gridLayout.spacing = Vector2.one * 2f;
