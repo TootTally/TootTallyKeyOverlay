@@ -53,11 +53,16 @@ namespace TootTallyKeyOverlay
         {
             string configPath = Path.Combine(Paths.BepInExRootPath, "config/");
             ConfigFile config = new ConfigFile(configPath + CONFIG_NAME, true) { SaveOnConfigSet = true };
+            PositionAlignment = config.Bind("General", nameof(PositionAlignment), KeyOverlayUIHolder.UIAlignment.BottomRight, "Rough position of the overlay on the screen.");
+            PosXOffset = config.Bind("General", nameof(PosXOffset), 0f, "X position offset for the overlay.");
+            PosYOffset = config.Bind("General", nameof(PosYOffset), 0f, "Y position offset for the overlay.");
+
             KeyCountLimit = config.Bind("General", nameof(KeyCountLimit), 4f, "Limit of keys displayed at the same time. Limited to 10 because on average, humans have less than 10 fingers.");
             KeyElementSize = config.Bind("General", nameof(KeyElementSize), 18f, "Size in pixels of a single key element.");
             KeyOutlineThiccness = config.Bind("General", nameof(KeyOutlineThiccness), 2f, "Size in pixels of a single key element.");
-            HorizontalAlignement = config.Bind("General", nameof(HorizontalAlignement), false, "Switch to horizontal layout.");
+            HorizontalAlignment = config.Bind("General", nameof(HorizontalAlignment), false, "Switch to horizontal layout.");
 
+            BeamDirection = config.Bind("General", nameof(BeamDirection), KeyOverlayUIHolder.BeamDirection.Left, "Rough position of the overlay on the screen.");
             BeamSpeed = config.Bind("General", nameof(BeamSpeed), 200f, "Speed of the beam when pressing a key. Frame dependent and default at 200fps");
             BeamLength = config.Bind("General", nameof(BeamLength), 150f, "Length of the beam when pressing a key. Default 150px");
             BeamColor = config.Bind("General", nameof(BeamColor), Color.gray, "Color of the beam when pressing a key.");
@@ -68,40 +73,7 @@ namespace TootTallyKeyOverlay
             KeyTextColor = config.Bind("General", nameof(KeyTextColor), Color.white, "Color of the text of a single key element.");
             KeyPressedTextColor = config.Bind("General", nameof(KeyPressedTextColor), Color.gray, "Color of the text of a single key element when key is pressed.");
 
-            settingPage = TootTallySettingsManager.AddNewPage("Key Overlay", "Key Overlay", 40f, new Color(0, 0, 0, 0));
-
-            settingPage.AddToggle("Horizontal Alignement", HorizontalAlignement);
-
-            settingPage.AddSlider("Key Count Limit", 1f, 10f, KeyCountLimit, true);
-
-            settingPage.AddSlider("Key Element Size", 4f, 32f, KeyElementSize, true);
-
-            settingPage.AddSlider("Key Outline Size", 0f, 8f, KeyOutlineThiccness, true);
-
-            settingPage.AddSlider("Beam Speed", 60f, 600f, BeamSpeed, true);
-
-            settingPage.AddSlider("Beam Length", 30f, 600f, BeamLength, true);
-
-            settingPage.AddLabel("Beam Color");
-            settingPage.AddColorSliders("Beam Color", "Beam Color", BeamColor);
-
-            settingPage.AddLabel("KeyOuterColor");
-            settingPage.AddColorSliders("KeyOuterColor", "KeyOuterColor", KeyOuterColor);
-
-            settingPage.AddLabel("KeyPressedOuterColor");
-            settingPage.AddColorSliders("KeyPressedOuterColor", "KeyPressedOuterColor", KeyPressedOuterColor);
-
-            settingPage.AddLabel("KeyInnerColor");
-            settingPage.AddColorSliders("KeyInnerColor", "KeyInnerColor", KeyInnerColor);
-
-            settingPage.AddLabel("KeyPressedInnerColor");
-            settingPage.AddColorSliders("KeyPressedInnerColor", "KeyPressedInnerColor", KeyPressedInnerColor);
-
-            settingPage.AddLabel("KeyTextColor");
-            settingPage.AddColorSliders("KeyTextColor", "KeyTextColor", KeyTextColor);
-
-            settingPage.AddLabel("KeyPressedTextColor");
-            settingPage.AddColorSliders("KeyPressedTextColor", "KeyPressedTextColor", KeyPressedTextColor);
+            settingPage = TootTallySettingsManager.AddNewPage(new KeyOverlaySettingsPage());
 
             TootTallySettings.Plugin.TryAddThunderstoreIconToPageButton(Instance.Info.Location, Name, settingPage);
 
@@ -115,7 +87,12 @@ namespace TootTallyKeyOverlay
             settingPage.Remove();
             LogInfo($"Module unloaded!");
         }
+        public ConfigEntry<KeyOverlayUIHolder.UIAlignment> PositionAlignment { get; set; }
 
+        public ConfigEntry<float> PosXOffset { get; set; }
+        public ConfigEntry<float> PosYOffset { get; set; }
+
+        public ConfigEntry<KeyOverlayUIHolder.BeamDirection> BeamDirection { get; set; }
         public ConfigEntry<Color> BeamColor { get; set; }
         public ConfigEntry<Color> KeyOuterColor { get; set; }
         public ConfigEntry<Color> KeyPressedOuterColor { get; set; }
@@ -128,7 +105,7 @@ namespace TootTallyKeyOverlay
         public ConfigEntry<float> BeamSpeed { get; set; }
         public ConfigEntry<float> BeamLength { get; set; }
         public ConfigEntry<float> KeyCountLimit { get; set; }
-        public ConfigEntry<bool> HorizontalAlignement { get; set; }
+        public ConfigEntry<bool> HorizontalAlignment { get; set; }
 
     }
 }
