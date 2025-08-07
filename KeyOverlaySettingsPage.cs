@@ -137,7 +137,7 @@ namespace TootTallyKeyOverlay
             _keyOverlayPreview = uiHolder.GetComponent<KeyOverlayController>();
             _keyOverlayPreview.Init(true);
             var rect = uiHolder.GetComponent<RectTransform>();
-            rect.anchoredPosition = new Vector2(-750, 1800);
+            rect.anchoredPosition = new Vector2(1000, 1800);
             rect.localScale = Vector3.one * 2.5f;
             
         }
