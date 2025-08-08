@@ -110,12 +110,6 @@ namespace TootTallyKeyOverlay
             _gridLayout.cellSize = Vector2.one * fullSize;
         }
 
-        public void Dispose()
-        {
-            GameObject.DestroyImmediate(_singleKeyPrefab);
-            GameObject.DestroyImmediate(_uiHolder);
-        }
-
         public SingleKey CreateNewKey(KeyCode key) => new SingleKey(GameObject.Instantiate(_singleKeyPrefab, _uiHolder.transform), key);
 
 

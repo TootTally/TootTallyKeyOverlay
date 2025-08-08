@@ -82,7 +82,6 @@ namespace TootTallyKeyOverlay
 
         public void OnDestroy()
         {
-            _uiHolder?.Dispose();
             _tootKeys?.Clear();
             _keyPressedDict?.Clear();
         }
