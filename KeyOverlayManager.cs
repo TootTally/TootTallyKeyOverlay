@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TootTallyCore.Graphics;
 using UnityEngine.UI;
 using UnityEngine;
+using TootTallyCore.Utils.TootTallyGlobals;
 
 namespace TootTallyKeyOverlay
 {
@@ -18,7 +19,7 @@ namespace TootTallyKeyOverlay
         [HarmonyPostfix]
         public static void OnGameControllerStartSetupOverlay(GameController __instance)
         {
-            if (__instance.freeplay) return;
+            if (__instance.freeplay || TootTallyGlobalVariables.isTournamentHosting) return;
 
             var uiCanvas = GameObject.Find("GameplayCanvas/UIHolder");
             var uiHolder = new GameObject("KeyOverlayUIHolder", typeof(RectTransform), typeof(GridLayoutGroup), typeof(KeyOverlayController));
@@ -26,13 +27,6 @@ namespace TootTallyKeyOverlay
             uiHolder.name = "KeyOverlayUIHolder";
             _keyOverlayController = uiHolder.GetComponent<KeyOverlayController>();
             _keyOverlayController.Init();
-        }
-
-        [HarmonyPatch(typeof(GameController), nameof(GameController.Update))]
-        [HarmonyPostfix]
-        public static void OnUpdateDetectKeyPressed(GameController __instance)
-        {
-            //Maybe add some stuff to disable / enable keypresses while pausing or something
         }
     }
 }
